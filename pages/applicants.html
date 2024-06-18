@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Абитуриенты</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f8f9fa;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .highlight {
+            color: orangered;
+            font-weight: bold;
+        }
+
+        th.sort-asc::after {
+            content: " \25B2";
+        }
+
+        th.sort-desc::after {
+            content: " \25BC";
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mb-4">Список абитуриентов</h1>
+        <div class="search-container">
+            <form method="get" class="form-inline">
+                <div class="form-group mr-2">
+                    <label for="search" class="sr-only">Поиск:</label>
+                    <input type="text" class="form-control" id="search" name="search" value="{{ search }}"
+                        placeholder="Поиск">
+                </div>
+                <button type="submit" class="btn btn-primary mr-2">Найти</button>
+                <a href="?" class="btn btn-secondary">Сбросить</a>
+            </form>
+            {% if search != '' %}
+            <p class="mt-2">Показаны результаты по запросу <b>{{ search }}</b></p>
+            {% endif %}
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th data-sort="name" scope="col">Имя</th>
+                    <th data-sort="lastname" scope="col">Фамилия</th>
+                    <th data-sort="groupNum" scope="col">Номер группы</th>
+                    <th data-sort="points" scope="col">Баллы</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for applicant in applicants %}
+                <tr>
+                    <td>{{ applicant.name }}</td>
+                    <td>{{ applicant.lastname }}</td>
+                    <td>{{ applicant.groupNum }}</td>
+                    <td>{{ applicant.points }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if total_pages > 1 %}
+        <div class="pagination">
+            Страницы:
+            {% for i in 1..total_pages %}
+            {% if i == current_page %}
+            <strong>{{ i }}</strong>
+            {% else %}
+            <a href="?search={{ search }}&page={{ i }}{% if sort %}&sort={{ sort }}{% endif %}">{{ i }}</a>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if auth %}
+        <a href="edit" class="btn btn-primary mr-2">Изменить данные</a>
+        {% else %}
+        <a href="register" class="btn btn-success">Регистрация</a>
+        {% endif %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let headers = $('th[data-sort]');
+            let searchParams = new URLSearchParams(window.location.search);
+            let currentSort = searchParams.get('sort');
+            let currentSortField = searchParams.get('sortField');
+
+            headers.each(function () {
+                let field = $(this).attr('data-sort');
+                if (field === currentSortField) {
+                    $(this).addClass(currentSort === 'desc' ? 'sort-desc' : 'sort-asc');
+                }
+
+                $(this).on('click', function () {
+                    let newSort = 'asc';
+                    if (currentSortField === field && currentSort === 'asc') {
+                        newSort = 'desc';
+                    }
+                    searchParams.set('sort', newSort);
+                    searchParams.set('sortField', field);
+                    window.location.search = searchParams.toString();
+                });
+            });
+
+            let searchString = "{{ search }}";
+            if (searchString) {
+                $('td, th').each(function () {
+                    if ($(this).text().includes(searchString)) {
+                        $(this).addClass('highlight');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
