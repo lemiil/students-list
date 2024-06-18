@@ -1,0 +1,21 @@
+body {
+    padding-top: 50px;
+    background-color: #f8f9fa;
+}
+
+.search-container {
+    margin-bottom: 20px;
+}
+
+.highlight {
+    color: orangered;
+    font-weight: bold;
+}
+
+th.sort-asc::after {
+    content: " \25B2";
+}
+
+th.sort-desc::after {
+    content: " \25BC";
+}
